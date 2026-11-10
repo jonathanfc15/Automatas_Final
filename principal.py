@@ -4,7 +4,7 @@
 ## Form generated from reading UI file 'interfazArchivo.ui'
 ##
 ## Created by: Qt User Interface Compiler version 6.12.0
-##
+## Holaaaaaaaaa
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
