@@ -1,37 +1,116 @@
 import sys
+from dataclasses import fields, is_dataclass
 
 from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QFileDialog,
-    QMessageBox
+    QMessageBox,
+    QTableWidgetItem,
+    QTreeWidgetItem,
 )
 
-from principal import Ui_MainWindow
+from principal import Ui_EditorLumo
+from compiler.lexer import Lexer
+from compiler.tokens import LexerError
+from compiler.parser import Parser, ParserError
+from compiler.semantic import SemanticAnalyzer, SemanticError
+from compiler.interpreter import Interpreter, RuntimeErrorLumo
 
 
-class Window(QMainWindow, Ui_MainWindow):
+class Window(QMainWindow, Ui_EditorLumo):
 
     def __init__(self):
         super().__init__()
 
         self.setupUi(self)
-        self.setWindowTitle("Editor de archivos")
+        self.setWindowTitle("Lumo - Editor y compilador")
         self.archivo_actual = None
 
-        self.action_New.triggered.connect(self.nuevo_archivo)
-        self.actionOpen.triggered.connect(self.abrir_archivo)
-        self.actionSave.triggered.connect(self.guardar_archivo)
-        self.actionExit.triggered.connect(self.close)
-        self.actionCopy.triggered.connect(self.plainTextEdit.copy)
-        self.actionPaste.triggered.connect(self.plainTextEdit.paste)
-        self.actionCut.triggered.connect(self.plainTextEdit.cut)
-        self.actionAbout.triggered.connect(self.acerca_de)
+        self.actionNuevo.triggered.connect(self.nuevo_archivo)
+        self.actionAbrir.triggered.connect(self.abrir_archivo)
+        self.actionGuardar.triggered.connect(self.guardar_archivo)
+        self.actionCopiar.triggered.connect(self.plainTextEdit.copy)
+        self.actionPegar.triggered.connect(self.plainTextEdit.paste)
+        self.actionCortar.triggered.connect(self.plainTextEdit.cut)
+        self.actionAcercaDe.triggered.connect(self.acerca_de)
+        self.botonCompilar.clicked.connect(self.compilar_ejecutar)
+        
+    def mostrar_ast(self, valor):
+        self.arbolAST.clear()
+        root = QTreeWidgetItem([valor.__class__.__name__])
+        self.arbolAST.addTopLevelItem(root)
+        self.agregar_nodo_ast(root, valor)
+
+    def agregar_nodo_ast(self, parent, valor):
+        if is_dataclass(valor):
+            for campo in fields(valor):
+                clave = campo.name
+                contenido = getattr(valor, clave)
+                if isinstance(contenido, list):
+                    lista = QTreeWidgetItem([f"{clave} ({len(contenido)})"])
+                    parent.addChild(lista)
+                    for elemento in contenido:
+                        if is_dataclass(elemento):
+                            nodo = QTreeWidgetItem([elemento.__class__.__name__])
+                            lista.addChild(nodo)
+                            self.agregar_nodo_ast(nodo, elemento)
+                        else:
+                            lista.addChild(QTreeWidgetItem([repr(elemento)]))
+                elif is_dataclass(contenido):
+                    nodo = QTreeWidgetItem([f"{clave}: {contenido.__class__.__name__}"])
+                    parent.addChild(nodo)
+                    self.agregar_nodo_ast(nodo, contenido)
+                else:
+                    parent.addChild(QTreeWidgetItem([f"{clave}: {contenido!r}"]))
+
+    def compilar_ejecutar(self):
+        source = self.plainTextEdit.toPlainText()
+        self.tablaTokens.setRowCount(0)
+        self.arbolAST.clear()
+        self.tablaErrores.setRowCount(0)
+        self.textoSalida.clear()
+
+        try:
+            tokens = Lexer(source).tokenize()
+            self.tablaTokens.setRowCount(len(tokens))
+            for fila, token in enumerate(tokens):
+                self.tablaTokens.setItem(
+                    fila, 0, QTableWidgetItem(str(token.line))
+                )
+                self.tablaTokens.setItem(
+                    fila, 1, QTableWidgetItem(token.type.name)
+                )
+                self.tablaTokens.setItem(
+                    fila, 2, QTableWidgetItem(token.lexeme)
+                )
+
+            program = Parser(tokens).parse()
+            SemanticAnalyzer().analyze(program)
+
+            self.mostrar_ast(program)
+            output = Interpreter().execute(program)
+            self.textoSalida.setPlainText(output)
+            self.panelesResultados.setCurrentWidget(self.pestañasSalida)
+            self.barraEstado.showMessage("Compilación y ejecución completadas")
+        except (LexerError, ParserError, SemanticError, RuntimeErrorLumo) as error:
+            self.tablaErrores.setRowCount(1)
+            self.tablaErrores.setItem(
+                0, 0, QTableWidgetItem(str(getattr(error, "line", 1)))
+            )
+            self.tablaErrores.setItem(
+                0, 1, QTableWidgetItem(str(getattr(error, "column", 1)))
+            )
+            self.tablaErrores.setItem(
+                0, 2, QTableWidgetItem(str(error))
+            )
+            self.panelesResultados.setCurrentWidget(self.pestañasErrores)
+            self.barraEstado.showMessage("El programa contiene errores")
 
     def nuevo_archivo(self):
         self.plainTextEdit.clear()
         self.archivo_actual = None
-        self.statusbar.showMessage("Archivo nuevo")
+        self.barraEstado.showMessage("Archivo nuevo")
 
     def abrir_archivo(self):
 
@@ -39,7 +118,7 @@ class Window(QMainWindow, Ui_MainWindow):
             self,
             "Abrir archivo",
             "",
-            "Archivos de texto (*.ism)"
+            "Archivos Lumo (*.lumo *.ism);;Todos los archivos (*.*)"
         )
 
         if archivo:
@@ -48,7 +127,7 @@ class Window(QMainWindow, Ui_MainWindow):
 
             self.plainTextEdit.setPlainText(contenido)
             self.archivo_actual = archivo
-            self.statusbar.showMessage(f"Archivo abierto: {archivo}")
+            self.barraEstado.showMessage(f"Archivo abierto: {archivo}")
 
     def guardar_archivo(self):
 
@@ -58,7 +137,7 @@ class Window(QMainWindow, Ui_MainWindow):
                 self,
                 "Guardar archivo",
                 "",
-                "Archivos de texto (*.ism)"
+                "Archivos Lumo (*.lumo);;Archivos de texto (*.ism)"
             )
 
         if archivo:
@@ -66,10 +145,10 @@ class Window(QMainWindow, Ui_MainWindow):
                 f.write(self.plainTextEdit.toPlainText())
 
             self.archivo_actual = archivo
-            self.statusbar.showMessage(f"Archivo guardado: {archivo}")
+            self.barraEstado.showMessage(f"Archivo guardado: {archivo}")
 
     def acerca_de(self):
-        QMessageBox.about(self, "Acerca de", "Editor de archivos")
+        QMessageBox.about(self, "Acerca de", "Editor Lumo")
 
 
 app = QApplication(sys.argv)
