@@ -1,11 +1,8 @@
-"""Analizador léxico del lenguaje Lumo."""
 
 from compiler.tokens import LexerError, Token, TokenType
 
 
 class Lexer:
-    """Convierte el código fuente de Lumo en una secuencia de tokens."""
-
     KEYWORDS = {
         "ent": TokenType.TYPE,
         "dec": TokenType.TYPE,
