@@ -1,0 +1,5 @@
+// Prueba de errores lexicos en Lumo
+ent valor = 10 @ 5;
+dec tasa = 4.;
+bool activo = !verdad;
+txt saludo = "Cadena sin cerrar;
