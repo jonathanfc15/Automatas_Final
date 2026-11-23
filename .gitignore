@@ -7,3 +7,7 @@ __pycache__/
 dist/
 build/
 *.egg-info/
+
+# Archivos que PLY puede generar
+parsetab.py
+parser.out

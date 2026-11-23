@@ -1,7 +1,7 @@
 import sys
 from dataclasses import fields, is_dataclass
 
-from PySide6.QtWidgets import (
+from PyQt6.QtWidgets import (
     QApplication,
     QMainWindow,
     QFileDialog,
@@ -46,7 +46,7 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.barraEstado.showMessage(
             f"Lumo  |  Línea {linea}  Columna {columna}"
         )
-        
+
     def mostrar_ast(self, valor):
         self.arbolAST.clear()
         root = QTreeWidgetItem([valor.__class__.__name__])
@@ -105,18 +105,24 @@ class Window(QMainWindow, Ui_EditorLumo):
             self.panelesResultados.setCurrentWidget(self.pestañasSalida)
             self.barraEstado.showMessage("Compilación y ejecución completadas")
         except (LexerError, ParserError, SemanticError, RuntimeErrorLumo) as error:
-            self.tablaErrores.setRowCount(1)
-            self.tablaErrores.setItem(
-                0, 0, QTableWidgetItem(str(getattr(error, "line", 1)))
-            )
-            self.tablaErrores.setItem(
-                0, 1, QTableWidgetItem(str(getattr(error, "column", 1)))
-            )
-            self.tablaErrores.setItem(
-                0, 2, QTableWidgetItem(str(error))
-            )
+            # El lexer y el parser (PLY) reportan todos sus errores en
+            # `error.errors`; los demás errores traen uno solo.
+            errores = getattr(error, "errors", [error])
+            self.tablaErrores.setRowCount(len(errores))
+            for fila, err in enumerate(errores):
+                self.tablaErrores.setItem(
+                    fila, 0, QTableWidgetItem(str(getattr(err, "line", 1)))
+                )
+                self.tablaErrores.setItem(
+                    fila, 1, QTableWidgetItem(str(getattr(err, "column", 1)))
+                )
+                self.tablaErrores.setItem(
+                    fila, 2, QTableWidgetItem(getattr(err, "message", str(err)))
+                )
             self.panelesResultados.setCurrentWidget(self.pestañasErrores)
-            self.barraEstado.showMessage("El programa contiene errores")
+            self.barraEstado.showMessage(
+                f"El programa contiene {len(errores)} error(es)"
+            )
 
     def nuevo_archivo(self):
         self.plainTextEdit.clear()
@@ -162,9 +168,14 @@ class Window(QMainWindow, Ui_EditorLumo):
         QMessageBox.about(self, "Acerca de", "Editor Lumo")
 
 
-app = QApplication(sys.argv)
+def main():
+    app = QApplication(sys.argv)
 
-window = Window()
-window.show()
+    window = Window()
+    window.show()
 
-sys.exit(app.exec())
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()

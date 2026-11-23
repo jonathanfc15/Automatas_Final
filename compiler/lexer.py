@@ -1,165 +1,206 @@
+"""Analizador léxico de Lumo, construido con PLY (``ply.lex``).
+
+Aquí se definen los tokens del lenguaje, las palabras reservadas y la
+expresión regular de cada token. PLY junta todas las reglas ``t_...`` de este
+módulo en una sola expresión regular y reconoce el texto de izquierda a
+derecha:
+
+* Las reglas escritas como *función* se prueban en el orden en que aparecen
+  en este archivo (por eso ``DECIMAL`` va antes que ``INTEGER``).
+* Las reglas escritas como *cadena* (operadores y signos) se prueban después,
+  de la expresión más larga a la más corta (por eso ``==`` gana a ``=``).
+"""
+
+import sys
+
+import ply.lex as lex
 
 from compiler.tokens import LexerError, Token, TokenType
 
+# --------------------------------------------------------------------------
+# Palabras reservadas: se reconocen como identificador y luego se reclasifican
+#   'texto en Lumo' : 'NOMBRE_DEL_TOKEN'
+# --------------------------------------------------------------------------
+reserved = {
+    "ent": "TYPE",
+    "dec": "TYPE",
+    "txt": "TYPE",
+    "bool": "TYPE",
+    "simon": "IF",
+    "nosimon": "ELSE",
+    "mientras": "WHILE",
+    "funchion": "FUNCTION",
+    "retorno": "RETURN",
+    "returno": "RETURN",
+    "muestrame": "PRINT",
+    "verdad": "TRUE",
+    "vdd": "TRUE",
+    "falso": "FALSE",
+    "Y": "AND",
+    "O": "OR",
+    "NONES": "NOT",
+}
 
+# --------------------------------------------------------------------------
+# Lista de tokens (la exige PLY)
+# --------------------------------------------------------------------------
+tokens = (
+    # Literales e identificadores
+    "INTEGER", "DECIMAL", "STRING", "IDENTIFIER",
+    # Palabras reservadas
+    "TYPE", "IF", "ELSE", "WHILE", "FUNCTION", "RETURN", "PRINT",
+    "TRUE", "FALSE", "AND", "OR", "NOT",
+    # Operadores
+    "PLUS", "MINUS", "STAR", "SLASH", "PERCENT",
+    "EQUAL", "EQUAL_EQUAL", "NOT_EQUAL",
+    "LESS", "LESS_EQUAL", "GREATER", "GREATER_EQUAL",
+    # Signos
+    "LEFT_PAREN", "RIGHT_PAREN", "LEFT_BRACE", "RIGHT_BRACE",
+    "COMMA", "SEMICOLON",
+)
+
+# --------------------------------------------------------------------------
+# Reglas de cadena: operadores y signos
+# --------------------------------------------------------------------------
+t_PLUS = r"\+"
+t_MINUS = r"-"
+t_STAR = r"\*"
+t_SLASH = r"/"
+t_PERCENT = r"%"
+t_EQUAL_EQUAL = r"=="
+t_NOT_EQUAL = r"!="
+t_LESS_EQUAL = r"<="
+t_GREATER_EQUAL = r">="
+t_EQUAL = r"="
+t_LESS = r"<"
+t_GREATER = r">"
+t_LEFT_PAREN = r"\("
+t_RIGHT_PAREN = r"\)"
+t_LEFT_BRACE = r"\{"
+t_RIGHT_BRACE = r"\}"
+t_COMMA = r","
+t_SEMICOLON = r";"
+
+# Caracteres que se ignoran entre tokens
+t_ignore = " \t\r"
+
+
+def find_column(source: str, position: int) -> int:
+    """Columna (empezando en 1) de la posición ``position`` dentro de ``source``."""
+    last_newline = source.rfind("\n", 0, position)
+    return position - last_newline
+
+
+# --------------------------------------------------------------------------
+# Reglas de función (se prueban en este orden)
+# --------------------------------------------------------------------------
+def t_COMMENT(t):
+    r"//.*"
+    # No regresa token: el comentario se descarta.
+
+
+def t_DECIMAL(t):
+    r"\d+\.\d+"
+    return t
+
+
+def t_BAD_DECIMAL(t):
+    r"\d+\.(?!\d)"
+    column = find_column(t.lexer.lexdata, t.lexpos)
+    t.lexer.errors.append(
+        LexerError("un número decimal debe tener dígitos después del punto", t.lineno, column)
+    )
+
+
+def t_INTEGER(t):
+    r"\d+"
+    return t
+
+
+def t_STRING(t):
+    r'"[^"\n]*"'
+    t.value = t.value[1:-1]  # el lexema no incluye las comillas
+    return t
+
+
+def t_UNTERMINATED_STRING(t):
+    r'"[^"\n]*'
+    column = find_column(t.lexer.lexdata, t.lexpos)
+    t.lexer.errors.append(
+        LexerError("cadena sin comilla de cierre (no puede ocupar varias líneas)", t.lineno, column)
+    )
+
+
+def t_IDENTIFIER(t):
+    r"[^\W\d]\w*"
+    t.type = reserved.get(t.value, "IDENTIFIER")
+    return t
+
+
+def t_newline(t):
+    r"\n+"
+    t.lexer.lineno += len(t.value)
+
+
+def t_error(t):
+    column = find_column(t.lexer.lexdata, t.lexpos)
+    character = t.value[0]
+    if character == "!":
+        message = "se esperaba '=' después de '!' (para negar usa NONES)"
+    else:
+        message = f"carácter no reconocido: {character!r}"
+    t.lexer.errors.append(LexerError(message, t.lineno, column))
+    t.lexer.skip(1)
+
+
+# --------------------------------------------------------------------------
+# Interfaz que usa el resto del proyecto
+# --------------------------------------------------------------------------
 class Lexer:
-    KEYWORDS = {
-        "ent": TokenType.TYPE,
-        "dec": TokenType.TYPE,
-        "txt": TokenType.TYPE,
-        "bool": TokenType.TYPE,
-        "simon": TokenType.IF,
-        "nosimon": TokenType.ELSE,
-        "mientras": TokenType.WHILE,
-        "funchion": TokenType.FUNCTION,
-        "retorno": TokenType.RETURN,
-        "returno": TokenType.RETURN,
-        "muestrame": TokenType.PRINT,
-        "verdad": TokenType.TRUE,
-        "vdd": TokenType.TRUE,
-        "falso": TokenType.FALSE,
-        "Y": TokenType.AND,
-        "O": TokenType.OR,
-        "NONES": TokenType.NOT,
-    }
-
-    SINGLE_CHARACTERS = {
-        "+": TokenType.PLUS,
-        "-": TokenType.MINUS,
-        "*": TokenType.STAR,
-        "/": TokenType.SLASH,
-        "%": TokenType.PERCENT,
-        "=": TokenType.EQUAL,
-        "(": TokenType.LEFT_PAREN,
-        ")": TokenType.RIGHT_PAREN,
-        "{": TokenType.LEFT_BRACE,
-        "}": TokenType.RIGHT_BRACE,
-        ",": TokenType.COMMA,
-        ";": TokenType.SEMICOLON,
-    }
+    """Envuelve al lexer de PLY y entrega objetos ``Token`` con línea y columna."""
 
     def __init__(self, source: str):
         self.source = source
-        self.position = 0
-        self.line = 1
-        self.column = 1
+        self.errors: list[LexerError] = []
+
+    def scan(self) -> tuple[list[Token], list[LexerError]]:
+        """Tokeniza todo el código sin detenerse en el primer error.
+
+        Regresa ``(tokens, errores)``. Los caracteres inválidos se saltan y se
+        anotan en ``errores``; la lista de tokens siempre termina con ``EOF``.
+        """
+        plylexer = lex.lex(module=sys.modules[__name__])
+        plylexer.errors = []
+        plylexer.input(self.source)
+
+        result = [
+            Token(
+                TokenType[ply_token.type],
+                ply_token.value,
+                ply_token.lineno,
+                find_column(self.source, ply_token.lexpos),
+            )
+            for ply_token in plylexer
+        ]
+        result.append(
+            Token(
+                TokenType.EOF,
+                "",
+                plylexer.lineno,
+                find_column(self.source, len(self.source)),
+            )
+        )
+        self.errors = plylexer.errors
+        return result, self.errors
 
     def tokenize(self) -> list[Token]:
-        """Tokeniza todo el código y agrega un token EOF al final."""
-        tokens: list[Token] = []
-        while not self._at_end():
-            character = self._advance()
+        """Tokeniza el código; si hay errores léxicos lanza ``LexerError``.
 
-            if character in " \t\r":
-                continue
-            if character == "\n":
-                self.line += 1
-                self.column = 1
-                continue
-            if character == "/" and self._match("/"):
-                self._skip_comment()
-                continue
-            if character.isalpha() or character == "_":
-                tokens.append(self._identifier(character))
-                continue
-            if character.isdigit():
-                tokens.append(self._number(character))
-                continue
-            if character == '"':
-                tokens.append(self._string())
-                continue
-            if character in self.SINGLE_CHARACTERS:
-                tokens.append(
-                    Token(
-                        self.SINGLE_CHARACTERS[character],
-                        character,
-                        self.line,
-                        self.column - 1,
-                    )
-                )
-                continue
-            if character in "<>!=":
-                tokens.append(self._comparison(character))
-                continue
-
-            raise LexerError(f"carácter no reconocido: {character!r}", self.line, self.column - 1)
-
-        tokens.append(Token(TokenType.EOF, "", self.line, self.column))
-        return tokens
-
-    def _at_end(self) -> bool:
-        return self.position >= len(self.source)
-
-    def _advance(self) -> str:
-        character = self.source[self.position]
-        self.position += 1
-        self.column += 1
-        return character
-
-    def _match(self, expected: str) -> bool:
-        if self._at_end() or self.source[self.position] != expected:
-            return False
-        self.position += 1
-        self.column += 1
-        return True
-
-    def _skip_comment(self) -> None:
-        while not self._at_end() and self.source[self.position] != "\n":
-            self._advance()
-
-    def _identifier(self, first_character: str) -> Token:
-        start_column = self.column - 1
-        lexeme = first_character
-        while not self._at_end() and (
-            self.source[self.position].isalnum() or self.source[self.position] == "_"
-        ):
-            lexeme += self._advance()
-        token_type = self.KEYWORDS.get(lexeme, TokenType.IDENTIFIER)
-        return Token(token_type, lexeme, self.line, start_column)
-
-    def _number(self, first_character: str) -> Token:
-        start_column = self.column - 1
-        lexeme = first_character
-        while not self._at_end() and self.source[self.position].isdigit():
-            lexeme += self._advance()
-
-        token_type = TokenType.INTEGER
-        if not self._at_end() and self.source[self.position] == ".":
-            token_type = TokenType.DECIMAL
-            lexeme += self._advance()
-            if self._at_end() or not self.source[self.position].isdigit():
-                raise LexerError("un número decimal debe tener dígitos después del punto", self.line, self.column - 1)
-            while not self._at_end() and self.source[self.position].isdigit():
-                lexeme += self._advance()
-        return Token(token_type, lexeme, self.line, start_column)
-
-    def _string(self) -> Token:
-        start_column = self.column - 1
-        value = []
-        while not self._at_end() and self.source[self.position] != '"':
-            if self.source[self.position] == "\n":
-                raise LexerError("la cadena no puede ocupar varias líneas", self.line, self.column)
-            value.append(self._advance())
-        if self._at_end():
-            raise LexerError("cadena sin comilla de cierre", self.line, start_column)
-        self._advance()
-        return Token(TokenType.STRING, "".join(value), self.line, start_column)
-
-    def _comparison(self, first_character: str) -> Token:
-        start_column = self.column - 1
-        lexeme = first_character
-        if self._match("="):
-            lexeme += "="
-        token_types = {
-            "=": TokenType.EQUAL,
-            "==": TokenType.EQUAL_EQUAL,
-            "!": TokenType.NOT,
-            "!=": TokenType.NOT_EQUAL,
-            "<": TokenType.LESS,
-            "<=": TokenType.LESS_EQUAL,
-            ">": TokenType.GREATER,
-            ">=": TokenType.GREATER_EQUAL,
-        }
-        if lexeme == "!":
-            raise LexerError("se esperaba '=' después de '!'", self.line, start_column)
-        return Token(token_types[lexeme], lexeme, self.line, start_column)
+        La excepción es el primer error y su atributo ``errors`` trae todos.
+        """
+        result, errors = self.scan()
+        if errors:
+            first = errors[0]
+            first.errors = list(errors)
+            raise first
+        return result

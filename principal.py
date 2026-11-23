@@ -3,20 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'interfazArchivo.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.12.0
+## Created by: Qt User Interface Compiler version 6.12.0 (adaptado a PyQt6)
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+from PyQt6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
     QMetaObject, QObject, QPoint, QRect,
     QSize, QTime, QUrl, Qt)
-from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
+from PyQt6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QCursor, QFont, QFontDatabase, QGradient,
     QIcon, QImage, QKeySequence, QLinearGradient,
     QPainter, QPalette, QPixmap, QRadialGradient,
     QTransform)
-from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLayout,
+from PyQt6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLayout,
     QHeaderView, QMainWindow, QMenu, QMenuBar,
     QPlainTextEdit, QPushButton, QSizePolicy, QSpacerItem,
     QSplitter, QStatusBar, QTabWidget, QTableWidget,
@@ -255,15 +255,15 @@ class Ui_EditorLumo(object):
         self.layoutCentral.setContentsMargins(16, 16, 16, 16)
         self.marcoPrincipal = QFrame(self.centralwidget)
         self.marcoPrincipal.setObjectName(u"marcoPrincipal")
-        self.marcoPrincipal.setFrameShape(QFrame.StyledPanel)
-        self.marcoPrincipal.setFrameShadow(QFrame.Plain)
+        self.marcoPrincipal.setFrameShape(QFrame.Shape.StyledPanel)
+        self.marcoPrincipal.setFrameShadow(QFrame.Shadow.Plain)
         self.layoutMarco = QVBoxLayout(self.marcoPrincipal)
         self.layoutMarco.setSpacing(10)
         self.layoutMarco.setObjectName(u"layoutMarco")
         self.layoutMarco.setContentsMargins(12, 12, 12, 12)
         self.splitterPrincipal = QSplitter(self.marcoPrincipal)
         self.splitterPrincipal.setObjectName(u"splitterPrincipal")
-        self.splitterPrincipal.setOrientation(Qt.Vertical)
+        self.splitterPrincipal.setOrientation(Qt.Orientation.Vertical)
         self.splitterPrincipal.setHandleWidth(4)
         self.contenedorEditor = QWidget(self.splitterPrincipal)
         self.contenedorEditor.setObjectName(u"contenedorEditor")
@@ -277,7 +277,7 @@ class Ui_EditorLumo(object):
         font.setFamilies([u"Monospace"])
         font.setPointSize(11)
         self.plainTextEdit.setFont(font)
-        self.plainTextEdit.setLineWrapMode(QPlainTextEdit.NoWrap)
+        self.plainTextEdit.setLineWrapMode(QPlainTextEdit.LineWrapMode.NoWrap)
         self.plainTextEdit.setTabStopDistance(32.000000000000000)
 
         self.layoutEditor.addWidget(self.plainTextEdit)
@@ -319,8 +319,8 @@ class Ui_EditorLumo(object):
         self.tablaTokens.setHorizontalHeaderItem(2, __qtablewidgetitem2)
         self.tablaTokens.setObjectName(u"tablaTokens")
         self.tablaTokens.setAlternatingRowColors(True)
-        self.tablaTokens.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.tablaTokens.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tablaTokens.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tablaTokens.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.tablaTokens.horizontalHeader().setStretchLastSection(True)
         self.tablaTokens.verticalHeader().setVisible(False)
 
@@ -355,8 +355,8 @@ class Ui_EditorLumo(object):
         self.tablaErrores.setHorizontalHeaderItem(2, __qtablewidgetitem5)
         self.tablaErrores.setObjectName(u"tablaErrores")
         self.tablaErrores.setAlternatingRowColors(True)
-        self.tablaErrores.setEditTriggers(QAbstractItemView.NoEditTriggers)
-        self.tablaErrores.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.tablaErrores.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
+        self.tablaErrores.setSelectionBehavior(QAbstractItemView.SelectionBehavior.SelectRows)
         self.tablaErrores.horizontalHeader().setStretchLastSection(True)
         self.tablaErrores.verticalHeader().setVisible(False)
 
@@ -401,7 +401,7 @@ class Ui_EditorLumo(object):
         self.barraHerramientas.setObjectName(u"barraHerramientas")
         self.barraHerramientas.setMovable(False)
         self.barraHerramientas.setIconSize(QSize(18, 18))
-        self.barraHerramientas.setToolButtonStyle(Qt.ToolButtonTextOnly)
+        self.barraHerramientas.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextOnly)
         EditorLumo.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.barraHerramientas)
         self.barraEstado = QStatusBar(EditorLumo)
         self.barraEstado.setObjectName(u"barraEstado")

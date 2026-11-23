@@ -5,7 +5,12 @@ from enum import Enum, auto
 
 
 class TokenType(Enum):
-    """Categorías de elementos reconocidos por el lexer."""
+    """Categorías de elementos reconocidos por el lexer.
+
+    Los nombres coinciden con la lista ``tokens`` de ``compiler/lexer.py``
+    (la que lee PLY); ``EOF`` es el único que PLY no define: lo agrega el
+    lexer al terminar para que el parser sepa dónde acaba el programa.
+    """
 
     INTEGER = auto()
     DECIMAL = auto()
@@ -61,10 +66,15 @@ class Token:
 
 
 class LexerError(Exception):
-    """Error producido por un carácter o literal inválido."""
+    """Error producido por un carácter o literal inválido.
+
+    ``errors`` contiene todos los errores léxicos encontrados en el programa
+    (el primero es el propio objeto), para poder mostrarlos juntos.
+    """
 
     def __init__(self, message: str, line: int, column: int):
         super().__init__(f"Línea {line}, columna {column}: {message}")
         self.message = message
         self.line = line
         self.column = column
+        self.errors: list["LexerError"] = [self]
