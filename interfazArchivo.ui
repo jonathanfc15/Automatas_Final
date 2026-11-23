@@ -23,13 +23,9 @@
    <string notr="true">/* ===== Base futurista: fondo oscuro con cuadrícula verde ===== */
 QMainWindow {
     background-color: #05080a;
-    background-image: url(:/fondo/cuadricula.png);
-    background-repeat: repeat;
 }
 QWidget#centralwidget {
-    background-color: #05080a;
-    background-image: url(:/fondo/cuadricula.png);
-    background-repeat: repeat;
+    background: transparent;
 }
 QWidget {
     color: #c9d1d9;

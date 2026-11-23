@@ -6,9 +6,17 @@ from PySide6.QtWidgets import (
     QMainWindow,
     QFileDialog,
     QMessageBox,
+    QLabel,
+    QLineEdit,
+    QPushButton,
     QTableWidgetItem,
     QTreeWidgetItem,
+    QWidget,
+    QHBoxLayout,
+    QSizePolicy,
 )
+from PySide6.QtGui import QKeySequence, QPixmap
+from PySide6.QtCore import Qt
 
 from principal import Ui_EditorLumo
 import recursos_rc
@@ -27,6 +35,14 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.setupUi(self)
         self.setWindowTitle("Lumo - Editor y compilador")
         self.archivo_actual = None
+        self._crear_busqueda_central()
+        self.fondo = QLabel(self)
+        self.fondo.setScaledContents(False)
+        self.fondo.setPixmap(
+            QPixmap(":/fondo/cuadricula.png")
+        )
+        self.fondo.lower()
+        self.actualizar_fondo()
 
         self.actionNuevo.triggered.connect(self.nuevo_archivo)
         self.actionAbrir.triggered.connect(self.abrir_archivo)
@@ -37,7 +53,111 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.actionAcercaDe.triggered.connect(self.acerca_de)
         self.botonCompilar.clicked.connect(self.compilar_ejecutar)
         self.plainTextEdit.cursorPositionChanged.connect(self.actualizar_posicion_cursor)
+        self.acceso_busqueda = self.addAction("")
+        self.acceso_busqueda.setShortcut(QKeySequence("Ctrl+F"))
+        self.acceso_busqueda.triggered.connect(self.buscarTexto.setFocus)
         self.actualizar_posicion_cursor()
+
+    def _crear_busqueda_central(self):
+        espaciador_izquierdo = QWidget(self.barraHerramientas)
+        espaciador_izquierdo.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
+
+        contenedor = QWidget(self.barraHerramientas)
+        contenedor.setStyleSheet("""
+            QWidget {
+                background: transparent;
+            }
+        """)
+        layout = QHBoxLayout(contenedor)
+        layout.setContentsMargins(8, 0, 8, 0)
+        layout.setSpacing(6)
+
+        self.buscarTexto = QLineEdit(contenedor)
+        self.buscarTexto.setPlaceholderText("Buscar...")
+        self.buscarTexto.setFixedWidth(220)
+        self.buscarTexto.setClearButtonEnabled(True)
+        self.buscarTexto.setStyleSheet("""
+            QLineEdit {
+                background-color: rgba(10, 15, 18, 230);
+                color: #d6e4dc;
+                border: 1px solid #1f8f4e;
+                border-radius: 8px;
+                padding: 7px 12px;
+                selection-background-color: #1f8f4e;
+                selection-color: #ffffff;
+            }
+            QLineEdit:focus {
+                border: 1px solid #39A0FF;
+            }
+        """)
+        self.buscarTexto.returnPressed.connect(self.buscar_siguiente)
+
+        self.botonBuscar = QPushButton("Buscar", contenedor)
+        self.botonBuscar.setCursor(Qt.CursorShape.PointingHandCursor)
+        self.botonBuscar.setFixedHeight(34)
+        self.botonBuscar.setStyleSheet("""
+            QPushButton {
+                background-color: #12301f;
+                color: #39A0FF;
+                border: 1px solid #39A0FF;
+                border-radius: 8px;
+                padding: 7px 18px;
+                font-weight: 700;
+            }
+            QPushButton:hover {
+                background-color: #1a4a2e;
+                color: #7dffa8;
+                border: 1px solid #7dffa8;
+            }
+            QPushButton:pressed {
+                background-color: #39A0FF;
+                color: #05080a;
+                border: 1px solid #39A0FF;
+            }
+        """)
+        self.botonBuscar.clicked.connect(self.buscar_siguiente)
+
+        layout.addWidget(self.buscarTexto)
+        layout.addWidget(self.botonBuscar)
+
+        espaciador_derecho = QWidget(self.barraHerramientas)
+        espaciador_derecho.setSizePolicy(
+            QSizePolicy.Policy.Expanding,
+            QSizePolicy.Policy.Preferred,
+        )
+
+        self.barraHerramientas.addWidget(espaciador_izquierdo)
+        self.barraHerramientas.addWidget(contenedor)
+        self.barraHerramientas.addWidget(espaciador_derecho)
+
+    def buscar_siguiente(self):
+        texto = self.buscarTexto.text()
+        if not texto:
+            return
+        if not self.plainTextEdit.find(texto):
+            cursor = self.plainTextEdit.textCursor()
+            cursor.movePosition(cursor.MoveOperation.Start)
+            self.plainTextEdit.setTextCursor(cursor)
+            self.plainTextEdit.find(texto)
+
+    def actualizar_fondo(self):
+        pixmap = QPixmap(":/fondo/cuadricula.png")
+        if pixmap.isNull():
+            return
+        escalada = pixmap.scaled(
+            self.size(),
+            Qt.AspectRatioMode.KeepAspectRatioByExpanding,
+            Qt.TransformationMode.SmoothTransformation,
+        )
+        self.fondo.setPixmap(escalada)
+        self.fondo.setGeometry(0, 0, self.width(), self.height())
+
+    def resizeEvent(self, evento):
+        super().resizeEvent(evento)
+        self.actualizar_fondo()
 
     def actualizar_posicion_cursor(self):
         cursor = self.plainTextEdit.textCursor()
