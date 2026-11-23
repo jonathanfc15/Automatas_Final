@@ -1,0 +1,22 @@
+ent edad = 20;
+txt nombre = "Ana";
+
+funchion ent duplicar(ent numero) {
+    retorno numero * 2;
+}
+
+simon edad >= 18 {
+    muestrame("Mayor de edad");
+} nosimon {
+    muestrame("Menor de edad");
+}
+
+ent resultado = duplicar(10);
+muestrame(nombre);
+muestrame(resultado);
+
+ent contador = 0;
+mientras contador < 3 {
+    contador = contador + 1;
+    muestrame(contador);
+}

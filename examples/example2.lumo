@@ -1,0 +1,19 @@
+//funciones, ciclos mientras y operadores logicos
+funchion ent calcularFactorial(ent n) {
+    ent resultado = 1;
+    ent contador = 1;
+
+    mientras contador <= n {
+        resultado = resultado * contador;
+        contador = contador + 1;
+    }
+
+    retorno resultado;
+}
+
+ent numero = 5;
+simon NONES (numero < 0) O numero == 0 {
+    ent fact = calcularFactorial(numero);
+    muestrame("Factorial calculado:");
+    muestrame(fact);
+}

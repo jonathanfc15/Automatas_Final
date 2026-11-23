@@ -1,4 +1,3 @@
-"""Analizador sintáctico descendente recursivo para Lumo."""
 
 from compiler import ast
 from compiler.tokens import Token, TokenType
@@ -44,7 +43,13 @@ class Parser:
         self._consume(TokenType.EQUAL, "se esperaba '=' en la declaración")
         initializer = self._expression()
         self._consume(TokenType.SEMICOLON, "se esperaba ';' al final de la declaración")
-        return ast.VarDeclaration(type_token.lexeme, name.lexeme, initializer)
+        return ast.VarDeclaration(
+            type_token.lexeme,
+            name.lexeme,
+            initializer,
+            name.line,
+            name.column,
+        )
 
     def _function_declaration(self) -> ast.FunctionDeclaration:
         return_type = self._consume(TokenType.TYPE, "se esperaba el tipo de retorno")
@@ -55,11 +60,26 @@ class Parser:
             while True:
                 parameter_type = self._consume(TokenType.TYPE, "se esperaba el tipo del parámetro")
                 parameter_name = self._consume(TokenType.IDENTIFIER, "se esperaba el nombre del parámetro")
-                parameters.append(ast.Parameter(parameter_type.lexeme, parameter_name.lexeme))
+                parameters.append(
+                    ast.Parameter(
+                        parameter_type.lexeme,
+                        parameter_name.lexeme,
+                        parameter_name.line,
+                        parameter_name.column,
+                    )
+                )
                 if not self._match(TokenType.COMMA):
                     break
         self._consume(TokenType.RIGHT_PAREN, "se esperaba ')' después de los parámetros")
-        return ast.FunctionDeclaration(return_type.lexeme, name.lexeme, parameters, self._block())
+        body = self._block()
+        return ast.FunctionDeclaration(
+            return_type.lexeme,
+            name.lexeme,
+            parameters,
+            body,
+            name.line,
+            name.column,
+        )
 
     def _statement(self):
         if self._match(TokenType.PRINT):
@@ -77,33 +97,37 @@ class Parser:
         return ast.ExpressionStatement(expression)
 
     def _print_statement(self) -> ast.PrintStatement:
+        print_token = self.tokens[self.current - 1]
         self._consume(TokenType.LEFT_PAREN, "se esperaba '(' después de muestrame")
         expression = self._expression()
         self._consume(TokenType.RIGHT_PAREN, "se esperaba ')' después de la expresión")
         self._consume(TokenType.SEMICOLON, "se esperaba ';' después de muestrame")
-        return ast.PrintStatement(expression)
+        return ast.PrintStatement(expression, print_token.line, print_token.column)
 
     def _if_statement(self) -> ast.IfStatement:
+        if_token = self.tokens[self.current - 1]
         condition = self._expression()
         then_branch = self._block()
         else_branch = self._block() if self._match(TokenType.ELSE) else None
-        return ast.IfStatement(condition, then_branch, else_branch)
+        return ast.IfStatement(condition, then_branch, else_branch, if_token.line, if_token.column)
 
     def _while_statement(self) -> ast.WhileStatement:
+        while_token = self.tokens[self.current - 1]
         condition = self._expression()
-        return ast.WhileStatement(condition, self._block())
+        return ast.WhileStatement(condition, self._block(), while_token.line, while_token.column)
 
     def _return_statement(self) -> ast.ReturnStatement:
+        return_token = self.tokens[self.current - 1]
         value = None if self._check(TokenType.SEMICOLON) else self._expression()
         self._consume(TokenType.SEMICOLON, "se esperaba ';' después de retorno")
-        return ast.ReturnStatement(value)
+        return ast.ReturnStatement(value, return_token.line, return_token.column)
 
     def _assignment(self) -> ast.Assignment:
         name = self._advance()
         self._consume(TokenType.EQUAL, "se esperaba '=' en la asignación")
         value = self._expression()
         self._consume(TokenType.SEMICOLON, "se esperaba ';' después de la asignación")
-        return ast.Assignment(name.lexeme, value)
+        return ast.Assignment(name.lexeme, value, name.line, name.column)
 
     def _block(self) -> ast.Block:
         self._consume(TokenType.LEFT_BRACE, "se esperaba '{'")
@@ -120,21 +144,39 @@ class Parser:
         expression = self._logical_and()
         while self._match(TokenType.OR):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._logical_and())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._logical_and(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _logical_and(self):
         expression = self._equality()
         while self._match(TokenType.AND):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._equality())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._equality(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _equality(self):
         expression = self._comparison()
         while self._match(TokenType.EQUAL_EQUAL, TokenType.NOT_EQUAL):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._comparison())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._comparison(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _comparison(self):
@@ -146,42 +188,66 @@ class Parser:
             TokenType.GREATER_EQUAL,
         ):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._term())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._term(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _term(self):
         expression = self._factor()
         while self._match(TokenType.PLUS, TokenType.MINUS):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._factor())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._factor(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _factor(self):
         expression = self._unary()
         while self._match(TokenType.STAR, TokenType.SLASH, TokenType.PERCENT):
             operator = self._previous()
-            expression = ast.Binary(expression, operator.lexeme, self._unary())
+            expression = ast.Binary(
+                expression,
+                operator.lexeme,
+                self._unary(),
+                operator.line,
+                operator.column,
+            )
         return expression
 
     def _unary(self):
         if self._match(TokenType.MINUS, TokenType.NOT):
             operator = self._previous()
-            return ast.Unary(operator.lexeme, self._unary())
+            return ast.Unary(operator.lexeme, self._unary(), operator.line, operator.column)
         return self._primary()
 
     def _primary(self):
         if self._match(TokenType.INTEGER):
-            return ast.Literal(int(self._previous().lexeme))
+            token = self._previous()
+            return ast.Literal(int(token.lexeme), token.line, token.column)
         if self._match(TokenType.DECIMAL):
-            return ast.Literal(float(self._previous().lexeme))
+            token = self._previous()
+            return ast.Literal(float(token.lexeme), token.line, token.column)
         if self._match(TokenType.STRING):
-            return ast.Literal(self._previous().lexeme)
+            token = self._previous()
+            return ast.Literal(token.lexeme, token.line, token.column)
         if self._match(TokenType.TRUE):
-            return ast.Literal(True)
+            token = self._previous()
+            return ast.Literal(True, token.line, token.column)
         if self._match(TokenType.FALSE):
-            return ast.Literal(False)
+            token = self._previous()
+            return ast.Literal(False, token.line, token.column)
         if self._match(TokenType.IDENTIFIER):
-            name = self._previous().lexeme
+            identifier = self._previous()
+            name = identifier.lexeme
             if self._match(TokenType.LEFT_PAREN):
                 arguments = []
                 if not self._check(TokenType.RIGHT_PAREN):
@@ -190,8 +256,8 @@ class Parser:
                         if not self._match(TokenType.COMMA):
                             break
                 self._consume(TokenType.RIGHT_PAREN, "se esperaba ')' después de los argumentos")
-                return ast.Call(name, arguments)
-            return ast.Variable(name)
+                return ast.Call(name, arguments, identifier.line, identifier.column)
+            return ast.Variable(name, identifier.line, identifier.column)
         if self._match(TokenType.LEFT_PAREN):
             expression = self._expression()
             self._consume(TokenType.RIGHT_PAREN, "se esperaba ')'")
