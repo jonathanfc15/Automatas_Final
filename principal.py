@@ -520,4 +520,3 @@ class Ui_EditorLumo(object):
         self.menuAyuda.setTitle(QCoreApplication.translate("EditorLumo", u"A&yuda", None))
         self.barraHerramientas.setWindowTitle(QCoreApplication.translate("EditorLumo", u"Barra de herramientas", None))
     # retranslateUi
-

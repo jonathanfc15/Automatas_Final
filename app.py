@@ -1,8 +1,10 @@
 import sys
 from dataclasses import fields, is_dataclass
 
+from PySide6.QtGui import QAction, QKeySequence, QTextCursor
 from PySide6.QtWidgets import (
     QApplication,
+    QInputDialog,
     QMainWindow,
     QFileDialog,
     QMessageBox,
@@ -27,6 +29,20 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.setupUi(self)
         self.setWindowTitle("Lumo - Editor y compilador")
         self.archivo_actual = None
+        self.ultimo_termino = ""
+
+        self.actionBuscar = QAction("Buscar", self)
+        self.actionBuscar.setShortcut(QKeySequence("Ctrl+F"))
+        self.actionBuscar.setToolTip("Buscar texto en el editor (Ctrl+F)")
+        self.actionBuscarSiguiente = QAction("Buscar siguiente", self)
+        self.actionBuscarSiguiente.setShortcut(QKeySequence("F3"))
+        self.menuEditar.addSeparator()
+        self.menuEditar.addAction(self.actionBuscar)
+        self.menuEditar.addAction(self.actionBuscarSiguiente)
+        self.barraHerramientas.addSeparator()
+        self.barraHerramientas.addAction(self.actionBuscar)
+        self.actionBuscar.triggered.connect(self.buscar)
+        self.actionBuscarSiguiente.triggered.connect(self.buscar_siguiente)
 
         self.actionNuevo.triggered.connect(self.nuevo_archivo)
         self.actionAbrir.triggered.connect(self.abrir_archivo)
@@ -46,7 +62,7 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.barraEstado.showMessage(
             f"Lumo  |  Línea {linea}  Columna {columna}"
         )
-        
+
     def mostrar_ast(self, valor):
         self.arbolAST.clear()
         root = QTreeWidgetItem([valor.__class__.__name__])
@@ -117,6 +133,38 @@ class Window(QMainWindow, Ui_EditorLumo):
             )
             self.panelesResultados.setCurrentWidget(self.pestañasErrores)
             self.barraEstado.showMessage("El programa contiene errores")
+
+    def buscar(self):
+        texto, ok = QInputDialog.getText(
+            self, "Buscar", "Texto a buscar:", text=self.ultimo_termino
+        )
+        if ok and texto:
+            self.ultimo_termino = texto
+            self.buscar_siguiente()
+
+    def buscar_siguiente(self):
+        if not self.ultimo_termino:
+            self.buscar()
+            return
+
+        editor = self.plainTextEdit
+        if editor.find(self.ultimo_termino):
+            self.barraEstado.showMessage(f"Encontrado: {self.ultimo_termino}")
+            return
+
+        # No hay más coincidencias: volver al inicio y reintentar
+        cursor_original = editor.textCursor()
+        editor.moveCursor(QTextCursor.MoveOperation.Start)
+        if editor.find(self.ultimo_termino):
+            self.barraEstado.showMessage(
+                f"Encontrado: {self.ultimo_termino} (desde el inicio)"
+            )
+        else:
+            editor.setTextCursor(cursor_original)
+            self.barraEstado.showMessage(f"No se encontró: {self.ultimo_termino}")
+            QMessageBox.information(
+                self, "Buscar", f"No se encontró \"{self.ultimo_termino}\"."
+            )
 
     def nuevo_archivo(self):
         self.plainTextEdit.clear()
