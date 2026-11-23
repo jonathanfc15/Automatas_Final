@@ -12,8 +12,10 @@ class Lexer:
         "nosimon": TokenType.ELSE,
         "mientras": TokenType.WHILE,
         "funchion": TokenType.FUNCTION,
+        "retorno": TokenType.RETURN,
         "returno": TokenType.RETURN,
         "muestrame": TokenType.PRINT,
+        "verdad": TokenType.TRUE,
         "vdd": TokenType.TRUE,
         "falso": TokenType.FALSE,
         "Y": TokenType.AND,
@@ -25,7 +27,7 @@ class Lexer:
         "+": TokenType.PLUS,
         "-": TokenType.MINUS,
         "*": TokenType.STAR,
-        "//": TokenType.SLASH,
+        "/": TokenType.SLASH,
         "%": TokenType.PERCENT,
         "=": TokenType.EQUAL,
         "(": TokenType.LEFT_PAREN,
@@ -33,7 +35,7 @@ class Lexer:
         "{": TokenType.LEFT_BRACE,
         "}": TokenType.RIGHT_BRACE,
         ",": TokenType.COMMA,
-        ";)": TokenType.SEMICOLON,
+        ";": TokenType.SEMICOLON,
     }
 
     def __init__(self, source: str):

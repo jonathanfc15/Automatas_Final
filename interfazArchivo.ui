@@ -20,24 +20,33 @@
    <string>Editor Lumo</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QMainWindow {
+   <string notr="true">/* ===== Base futurista: fondo oscuro con cuadrícula verde ===== */
+QMainWindow {
     background-color: #05080a;
+    background-image: url(:/fondo/cuadricula.png);
+    background-repeat: repeat;
 }
 QWidget#centralwidget {
     background-color: #05080a;
+    background-image: url(:/fondo/cuadricula.png);
+    background-repeat: repeat;
 }
 QWidget {
     color: #c9d1d9;
     font-family: "Inter", "Segoe UI", "Noto Sans", sans-serif;
     font-size: 10pt;
 }
+
+/* ===== Marco principal con borde verde brillante (translúcido) ===== */
 QFrame#marcoPrincipal {
-    background-color: rgba(8, 12, 14, 235);
+    background-color: rgba(8, 12, 14, 150);
     border: 1px solid #1f8f4e;
     border-radius: 14px;
 }
+
+/* ===== Editor de código (translúcido) ===== */
 QPlainTextEdit#plainTextEdit {
-    background-color: #0a0f12;
+    background-color: rgba(10, 15, 18, 160);
     color: #d6e4dc;
     border: 1px solid #1c2a26;
     border-radius: 8px;
@@ -50,6 +59,8 @@ QPlainTextEdit#plainTextEdit {
 QPlainTextEdit#plainTextEdit:focus {
     border: 1px solid #2ee66b;
 }
+
+/* ===== Botón Compilar / Ejecutar ===== */
 QPushButton#botonCompilar {
     background-color: #12301f;
     color: #2ee66b;
@@ -68,10 +79,12 @@ QPushButton#botonCompilar:pressed {
     background-color: #2ee66b;
     color: #05080a;
 }
+
+/* ===== Pestañas ===== */
 QTabWidget::pane {
     border: 1px solid #1c2a26;
     border-radius: 8px;
-    background-color: #0a0f12;
+    background-color: rgba(10, 15, 18, 160);
     top: -1px;
 }
 QTabBar::tab {
@@ -89,11 +102,17 @@ QTabBar::tab:selected {
     color: #2ee66b;
     border-color: #1f8f4e;
 }
+QTabBar::tab:hover:!selected {
+    color: #c9d1d9;
+    background-color: #111b1e;
+}
+
+/* ===== Listas / tablas / texto de paneles ===== */
 QTreeWidget, QTableWidget, QPlainTextEdit#textoSalida, QListWidget {
-    background-color: #0a0f12;
+    background-color: rgba(10, 15, 18, 160);
     color: #d6e4dc;
     border: none;
-    alternate-background-color: #0d1417;
+    alternate-background-color: rgba(13, 20, 23, 160);
     gridline-color: #1c2a26;
     font-family: "JetBrains Mono", "Fira Code", "DejaVu Sans Mono", "Consolas", monospace;
 }
@@ -104,6 +123,8 @@ QHeaderView::section {
     border-bottom: 1px solid #1f8f4e;
     padding: 4px 8px;
 }
+
+/* ===== Menús, barra de herramientas, estado ===== */
 QMenuBar {
     background-color: #05080a;
     color: #c9d1d9;
@@ -161,6 +182,12 @@ QStatusBar {
     color: #7f9a8d;
     border-top: 1px solid #1c2a26;
 }
+QLabel#etiquetaPosicion, QLabel#etiquetaEstado {
+    color: #2ee66b;
+    padding: 0 8px;
+}
+
+/* ===== Scrollbars ===== */
 QScrollBar:vertical {
     background: #070b0d;
     width: 10px;
@@ -192,57 +219,127 @@ QSplitter::handle:hover {
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="layoutCentral">
-    <property name="spacing"><number>8</number></property>
-    <property name="leftMargin"><number>16</number></property>
-    <property name="topMargin"><number>16</number></property>
-    <property name="rightMargin"><number>16</number></property>
-    <property name="bottomMargin"><number>16</number></property>
+    <property name="spacing">
+     <number>8</number>
+    </property>
+    <property name="leftMargin">
+     <number>16</number>
+    </property>
+    <property name="topMargin">
+     <number>16</number>
+    </property>
+    <property name="rightMargin">
+     <number>16</number>
+    </property>
+    <property name="bottomMargin">
+     <number>16</number>
+    </property>
     <item>
      <widget class="QFrame" name="marcoPrincipal">
-      <property name="frameShape"><enum>QFrame::StyledPanel</enum></property>
-      <property name="frameShadow"><enum>QFrame::Plain</enum></property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Plain</enum>
+      </property>
       <layout class="QVBoxLayout" name="layoutMarco">
-       <property name="spacing"><number>10</number></property>
-       <property name="leftMargin"><number>12</number></property>
-       <property name="topMargin"><number>12</number></property>
-       <property name="rightMargin"><number>12</number></property>
-       <property name="bottomMargin"><number>12</number></property>
+       <property name="spacing">
+        <number>10</number>
+       </property>
+       <property name="leftMargin">
+        <number>12</number>
+       </property>
+       <property name="topMargin">
+        <number>12</number>
+       </property>
+       <property name="rightMargin">
+        <number>12</number>
+       </property>
+       <property name="bottomMargin">
+        <number>12</number>
+       </property>
        <item>
         <widget class="QSplitter" name="splitterPrincipal">
-         <property name="orientation"><enum>Qt::Vertical</enum></property>
-         <property name="handleWidth"><number>4</number></property>
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="handleWidth">
+          <number>4</number>
+         </property>
          <widget class="QWidget" name="contenedorEditor">
           <layout class="QVBoxLayout" name="layoutEditor">
-           <property name="spacing"><number>8</number></property>
-           <property name="leftMargin"><number>0</number></property>
-           <property name="topMargin"><number>0</number></property>
-           <property name="rightMargin"><number>0</number></property>
-           <property name="bottomMargin"><number>0</number></property>
+           <property name="spacing">
+            <number>8</number>
+           </property>
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
            <item>
-            <widget class="QPlainTextEdit" name="plainTextEdit">
+            <widget class="EditorCodigo" name="plainTextEdit">
              <property name="font">
-              <font><family>Monospace</family><pointsize>11</pointsize></font>
+              <font>
+               <family>Monospace</family>
+               <pointsize>11</pointsize>
+              </font>
              </property>
-             <property name="lineWrapMode"><enum>QPlainTextEdit::NoWrap</enum></property>
-             <property name="tabStopDistance"><double>32.000000000000000</double></property>
-             <property name="placeholderText"><string>// Escribe tu codigo Lumo aqui...</string></property>
+             <property name="lineWrapMode">
+              <enum>QPlainTextEdit::NoWrap</enum>
+             </property>
+             <property name="tabStopDistance">
+              <double>32.000000000000000</double>
+             </property>
+             <property name="placeholderText">
+              <string>// Escribe tu código Lumo aquí...</string>
+             </property>
             </widget>
            </item>
            <item>
             <layout class="QHBoxLayout" name="layoutBotonEjecutar">
+             <property name="spacing">
+              <number>8</number>
+             </property>
              <item>
               <spacer name="espaciadorIzquierdo">
-               <property name="orientation"><enum>Qt::Horizontal</enum></property>
-               <property name="sizeHint" stdset="0"><size><width>40</width><height>20</height></size></property>
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
               </spacer>
              </item>
              <item>
               <widget class="QPushButton" name="botonCompilar">
-               <property name="minimumSize"><size><width>180</width><height>36</height></size></property>
-               <property name="cursor"><cursorShape>PointingHandCursor</cursorShape></property>
-               <property name="toolTip"><string>Compilar y ejecutar el codigo (F5)</string></property>
-               <property name="text"><string>▶  Compilar / Ejecutar</string></property>
-               <property name="shortcut"><string>F5</string></property>
+               <property name="minimumSize">
+                <size>
+                 <width>180</width>
+                 <height>36</height>
+                </size>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="toolTip">
+                <string>Compilar y ejecutar el código (F5)</string>
+               </property>
+               <property name="text">
+                <string>▶  Compilar / Ejecutar</string>
+               </property>
+               <property name="shortcut">
+                <string>F5</string>
+               </property>
               </widget>
              </item>
             </layout>
@@ -250,78 +347,180 @@ QSplitter::handle:hover {
           </layout>
          </widget>
          <widget class="QTabWidget" name="panelesResultados">
-          <property name="currentIndex"><number>0</number></property>
+          <property name="currentIndex">
+           <number>0</number>
+          </property>
+          <property name="documentMode">
+           <bool>false</bool>
+          </property>
           <widget class="QWidget" name="pestañasTokens">
-           <attribute name="title"><string>Tokens</string></attribute>
+           <attribute name="title">
+            <string>Tokens</string>
+           </attribute>
            <layout class="QVBoxLayout" name="layoutTokens">
-            <property name="leftMargin"><number>0</number></property>
-            <property name="topMargin"><number>0</number></property>
-            <property name="rightMargin"><number>0</number></property>
-            <property name="bottomMargin"><number>0</number></property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QTableWidget" name="tablaTokens">
-              <property name="alternatingRowColors"><bool>true</bool></property>
-              <property name="editTriggers"><set>QAbstractItemView::NoEditTriggers</set></property>
-              <property name="selectionBehavior"><enum>QAbstractItemView::SelectRows</enum></property>
-              <attribute name="horizontalHeaderStretchLastSection"><bool>true</bool></attribute>
-              <attribute name="verticalHeaderVisible"><bool>false</bool></attribute>
-              <column><property name="text"><string>Linea</string></property></column>
-              <column><property name="text"><string>Tipo</string></property></column>
-              <column><property name="text"><string>Lexema</string></property></column>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>true</bool>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>Línea</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Tipo</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Lexema</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="pestañasAST">
-           <attribute name="title"><string>AST</string></attribute>
+           <attribute name="title">
+            <string>AST</string>
+           </attribute>
            <layout class="QVBoxLayout" name="layoutAST">
-            <property name="leftMargin"><number>0</number></property>
-            <property name="topMargin"><number>0</number></property>
-            <property name="rightMargin"><number>0</number></property>
-            <property name="bottomMargin"><number>0</number></property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QTreeWidget" name="arbolAST">
-              <property name="alternatingRowColors"><bool>true</bool></property>
-              <column><property name="text"><string>Nodo</string></property></column>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <column>
+               <property name="text">
+                <string>Nodo</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="pestañasErrores">
-           <attribute name="title"><string>Errores</string></attribute>
+           <attribute name="title">
+            <string>Errores</string>
+           </attribute>
            <layout class="QVBoxLayout" name="layoutErrores">
-            <property name="leftMargin"><number>0</number></property>
-            <property name="topMargin"><number>0</number></property>
-            <property name="rightMargin"><number>0</number></property>
-            <property name="bottomMargin"><number>0</number></property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QTableWidget" name="tablaErrores">
-              <property name="alternatingRowColors"><bool>true</bool></property>
-              <property name="editTriggers"><set>QAbstractItemView::NoEditTriggers</set></property>
-              <property name="selectionBehavior"><enum>QAbstractItemView::SelectRows</enum></property>
-              <attribute name="horizontalHeaderStretchLastSection"><bool>true</bool></attribute>
-              <attribute name="verticalHeaderVisible"><bool>false</bool></attribute>
-              <column><property name="text"><string>Linea</string></property></column>
-              <column><property name="text"><string>Columna</string></property></column>
-              <column><property name="text"><string>Descripcion</string></property></column>
+              <property name="alternatingRowColors">
+               <bool>true</bool>
+              </property>
+              <property name="editTriggers">
+               <set>QAbstractItemView::NoEditTriggers</set>
+              </property>
+              <property name="selectionBehavior">
+               <enum>QAbstractItemView::SelectRows</enum>
+              </property>
+              <attribute name="horizontalHeaderStretchLastSection">
+               <bool>true</bool>
+              </attribute>
+              <attribute name="verticalHeaderVisible">
+               <bool>false</bool>
+              </attribute>
+              <column>
+               <property name="text">
+                <string>Línea</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Columna</string>
+               </property>
+              </column>
+              <column>
+               <property name="text">
+                <string>Descripción</string>
+               </property>
+              </column>
              </widget>
             </item>
            </layout>
           </widget>
           <widget class="QWidget" name="pestañasSalida">
-           <attribute name="title"><string>Salida</string></attribute>
+           <attribute name="title">
+            <string>Salida</string>
+           </attribute>
            <layout class="QVBoxLayout" name="layoutSalida">
-            <property name="leftMargin"><number>0</number></property>
-            <property name="topMargin"><number>0</number></property>
-            <property name="rightMargin"><number>0</number></property>
-            <property name="bottomMargin"><number>0</number></property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
             <item>
              <widget class="QPlainTextEdit" name="textoSalida">
               <property name="font">
-               <font><family>Monospace</family><pointsize>10</pointsize></font>
+               <font>
+                <family>Monospace</family>
+                <pointsize>10</pointsize>
+               </font>
               </property>
-              <property name="readOnly"><bool>true</bool></property>
-              <property name="placeholderText"><string>La salida del programa aparecera aqui...</string></property>
+              <property name="readOnly">
+               <bool>true</bool>
+              </property>
+              <property name="placeholderText">
+               <string>La salida del programa aparecerá aquí...</string>
+              </property>
              </widget>
             </item>
            </layout>
@@ -335,37 +534,157 @@ QSplitter::handle:hover {
    </layout>
   </widget>
   <widget class="QMenuBar" name="barraMenu">
-   <property name="geometry"><rect><x>0</x><y>0</y><width>1200</width><height>30</height></rect></property>
-   <widget class="QMenu" name="menuArchivo"><property name="title"><string>&amp;Archivo</string></property>
-    <addaction name="actionNuevo"/><addaction name="actionAbrir"/><addaction name="actionGuardar"/>
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>1200</width>
+     <height>30</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuArchivo">
+    <property name="title">
+     <string>&amp;Archivo</string>
+    </property>
+    <addaction name="actionNuevo"/>
+    <addaction name="actionAbrir"/>
+    <addaction name="actionGuardar"/>
    </widget>
-   <widget class="QMenu" name="menuEditar"><property name="title"><string>&amp;Editar</string></property>
-    <addaction name="actionCopiar"/><addaction name="actionPegar"/><addaction name="actionCortar"/>
+   <widget class="QMenu" name="menuEditar">
+    <property name="title">
+     <string>&amp;Editar</string>
+    </property>
+    <addaction name="actionCopiar"/>
+    <addaction name="actionPegar"/>
+    <addaction name="actionCortar"/>
    </widget>
-   <widget class="QMenu" name="menuAyuda"><property name="title"><string>A&amp;yuda</string></property>
+   <widget class="QMenu" name="menuAyuda">
+    <property name="title">
+     <string>A&amp;yuda</string>
+    </property>
     <addaction name="actionAcercaDe"/>
    </widget>
-   <addaction name="menuArchivo"/><addaction name="menuEditar"/><addaction name="menuAyuda"/>
+   <addaction name="menuArchivo"/>
+   <addaction name="menuEditar"/>
+   <addaction name="menuAyuda"/>
   </widget>
   <widget class="QToolBar" name="barraHerramientas">
-   <property name="windowTitle"><string>Barra de herramientas</string></property>
-   <property name="movable"><bool>false</bool></property>
-   <property name="toolButtonStyle"><enum>Qt::ToolButtonTextOnly</enum></property>
-   <attribute name="toolBarArea"><enum>TopToolBarArea</enum></attribute>
-   <attribute name="toolBarBreak"><bool>false</bool></attribute>
-   <addaction name="actionNuevo"/><addaction name="actionAbrir"/><addaction name="actionGuardar"/>
+   <property name="windowTitle">
+    <string>Barra de herramientas</string>
+   </property>
+   <property name="movable">
+    <bool>false</bool>
+   </property>
+   <property name="iconSize">
+    <size>
+     <width>18</width>
+     <height>18</height>
+    </size>
+   </property>
+   <property name="toolButtonStyle">
+    <enum>Qt::ToolButtonTextOnly</enum>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionNuevo"/>
+   <addaction name="actionAbrir"/>
+   <addaction name="actionGuardar"/>
    <addaction name="separator"/>
-   <addaction name="actionCopiar"/><addaction name="actionPegar"/><addaction name="actionCortar"/>
+   <addaction name="actionCopiar"/>
+   <addaction name="actionPegar"/>
+   <addaction name="actionCortar"/>
   </widget>
-  <widget class="QStatusBar" name="barraEstado"><property name="sizeGripEnabled"><bool>true</bool></property></widget>
-  <action name="actionNuevo"><property name="text"><string>Nuevo</string></property><property name="shortcut"><string>Ctrl+N</string></property></action>
-  <action name="actionAbrir"><property name="text"><string>Abrir</string></property><property name="shortcut"><string>Ctrl+O</string></property></action>
-  <action name="actionGuardar"><property name="text"><string>Guardar</string></property><property name="shortcut"><string>Ctrl+S</string></property></action>
-  <action name="actionCopiar"><property name="text"><string>Copiar</string></property><property name="shortcut"><string>Ctrl+C</string></property></action>
-  <action name="actionPegar"><property name="text"><string>Pegar</string></property><property name="shortcut"><string>Ctrl+V</string></property></action>
-  <action name="actionCortar"><property name="text"><string>Cortar</string></property><property name="shortcut"><string>Ctrl+X</string></property></action>
-  <action name="actionAcercaDe"><property name="text"><string>Acerca de</string></property></action>
+  <widget class="QStatusBar" name="barraEstado">
+   <property name="sizeGripEnabled">
+    <bool>true</bool>
+   </property>
+  </widget>
+  <action name="actionNuevo">
+   <property name="text">
+    <string>Nuevo</string>
+   </property>
+   <property name="toolTip">
+    <string>Crear un archivo nuevo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+N</string>
+   </property>
+  </action>
+  <action name="actionAbrir">
+   <property name="text">
+    <string>Abrir</string>
+   </property>
+   <property name="toolTip">
+    <string>Abrir un archivo</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
+  </action>
+  <action name="actionGuardar">
+   <property name="text">
+    <string>Guardar</string>
+   </property>
+   <property name="toolTip">
+    <string>Guardar el archivo actual</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
+   </property>
+  </action>
+  <action name="actionCopiar">
+   <property name="text">
+    <string>Copiar</string>
+   </property>
+   <property name="toolTip">
+    <string>Copiar la selección</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+C</string>
+   </property>
+  </action>
+  <action name="actionPegar">
+   <property name="text">
+    <string>Pegar</string>
+   </property>
+   <property name="toolTip">
+    <string>Pegar desde el portapapeles</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+V</string>
+   </property>
+  </action>
+  <action name="actionCortar">
+   <property name="text">
+    <string>Cortar</string>
+   </property>
+   <property name="toolTip">
+    <string>Cortar la selección</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+X</string>
+   </property>
+  </action>
+  <action name="actionAcercaDe">
+   <property name="text">
+    <string>Acerca de</string>
+   </property>
+   <property name="toolTip">
+    <string>Información sobre Editor Lumo</string>
+   </property>
+  </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>EditorCodigo</class>
+   <extends>QPlainTextEdit</extends>
+   <header>editor_codigo</header>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>plainTextEdit</tabstop>
   <tabstop>botonCompilar</tabstop>
@@ -375,6 +694,8 @@ QSplitter::handle:hover {
   <tabstop>tablaErrores</tabstop>
   <tabstop>textoSalida</tabstop>
  </tabstops>
- <resources/>
+ <resources>
+  <include location="recursos.qrc"/>
+ </resources>
  <connections/>
 </ui>

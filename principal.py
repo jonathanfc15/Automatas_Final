@@ -23,35 +23,48 @@ from PySide6.QtWidgets import (QAbstractItemView, QApplication, QFrame, QHBoxLay
     QTableWidgetItem, QToolBar, QTreeWidget, QTreeWidgetItem,
     QVBoxLayout, QWidget)
 
+from editor_codigo import EditorCodigo
+import recursos_rc
+
 class Ui_EditorLumo(object):
     def setupUi(self, EditorLumo):
         if not EditorLumo.objectName():
             EditorLumo.setObjectName(u"EditorLumo")
         EditorLumo.resize(1200, 655)
         EditorLumo.setMinimumSize(QSize(800, 450))
-        EditorLumo.setStyleSheet(u"QMainWindow {\n"
+        EditorLumo.setStyleSheet(u"/* ===== Base futurista: fondo oscuro con cuadr\u00edcula verde ===== */\n"
+"QMainWindow {\n"
 "    background-color: #05080a;\n"
+"    background-image: url(:/fondo/cuadricula.png);\n"
+"    background-repeat: repeat;\n"
 "}\n"
 "QWidget#centralwidget {\n"
 "    background-color: #05080a;\n"
+"    background-image: url(:/fondo/cuadricula.png);\n"
+"    background-repeat: repeat;\n"
 "}\n"
 "QWidget {\n"
 "    color: #c9d1d9;\n"
 "    font-family: \"Inter\", \"Segoe UI\", \"Noto Sans\", sans-serif;\n"
 "    font-size: 10pt;\n"
 "}\n"
+"\n"
+"/* ===== Marco principal con borde verde brillante (transl\u00facido) ===== */\n"
 "QFrame#marcoPrincipal {\n"
-"    background-color: rgba(8, 12, 14, 235);\n"
+"    background-color: rgba(8, 12, 14, 150);\n"
 "    border: 1px solid #1f8f4e;\n"
 "    border-radius: 14px;\n"
 "}\n"
+"\n"
+"/* ===== Editor de c\u00f3digo (transl\u00facido) ===== */\n"
 "QPlainTextEdit#plainTextEdit {\n"
-"    background-color: #0a0f12;\n"
+"    background-color: rgba(10, 15, 18, 160);\n"
 "    color: #d6e4dc;\n"
 "    border: 1px solid #1c2a26;\n"
 "    border-radius: 8px;\n"
 "    padding: 8px;\n"
-"    selection-background-color: #1f8f4e;\n"
+"   "
+                        " selection-background-color: #1f8f4e;\n"
 "    selection-color: #ffffff;\n"
 "    font-family: \"JetBrains Mono\", \"Fira Code\", \"DejaVu Sans Mono\", \"Consolas\", monospace;\n"
 "    font-size: 11pt;\n"
@@ -59,12 +72,13 @@ class Ui_EditorLumo(object):
 "QPlainTextEdit#plainTextEdit:focus {\n"
 "    border: 1px solid #2ee66b;\n"
 "}\n"
+"\n"
+"/* ===== Bot\u00f3n Compilar / Ejecutar ===== */\n"
 "QPushButton#botonCompilar {\n"
 "    background-color: #12301f;\n"
 "    color: #2ee66b;\n"
 "    border: 1px solid #2ee66b;\n"
-"    borde"
-                        "r-radius: 8px;\n"
+"    border-radius: 8px;\n"
 "    padding: 8px 20px;\n"
 "    font-weight: 600;\n"
 "    min-height: 22px;\n"
@@ -78,12 +92,15 @@ class Ui_EditorLumo(object):
 "    background-color: #2ee66b;\n"
 "    color: #05080a;\n"
 "}\n"
+"\n"
+"/* ===== Pesta\u00f1as ===== */\n"
 "QTabWidget::pane {\n"
 "    border: 1px solid #1c2a26;\n"
 "    border-radius: 8px;\n"
-"    background-color: #0a0f12;\n"
+"    background-color: rgba(10, 15, 18, 160);\n"
 "    top: -1px;\n"
-"}\n"
+""
+                        "}\n"
 "QTabBar::tab {\n"
 "    background-color: #0d1417;\n"
 "    color: #7f9a8d;\n"
@@ -99,22 +116,30 @@ class Ui_EditorLumo(object):
 "    color: #2ee66b;\n"
 "    border-color: #1f8f4e;\n"
 "}\n"
+"QTabBar::tab:hover:!selected {\n"
+"    color: #c9d1d9;\n"
+"    background-color: #111b1e;\n"
+"}\n"
+"\n"
+"/* ===== Listas / tablas / texto de paneles ===== */\n"
 "QTreeWidget, QTableWidget, QPlainTextEdit#textoSalida, QListWidget {\n"
-"    background-color: #0a0f12;\n"
+"    background-color: rgba(10, 15, 18, 160);\n"
 "    color: #d6e4dc;\n"
-""
-                        "    border: none;\n"
-"    alternate-background-color: #0d1417;\n"
+"    border: none;\n"
+"    alternate-background-color: rgba(13, 20, 23, 160);\n"
 "    gridline-color: #1c2a26;\n"
 "    font-family: \"JetBrains Mono\", \"Fira Code\", \"DejaVu Sans Mono\", \"Consolas\", monospace;\n"
 "}\n"
 "QHeaderView::section {\n"
 "    background-color: #0d1417;\n"
 "    color: #2ee66b;\n"
-"    border: none;\n"
+" "
+                        "   border: none;\n"
 "    border-bottom: 1px solid #1f8f4e;\n"
 "    padding: 4px 8px;\n"
 "}\n"
+"\n"
+"/* ===== Men\u00fas, barra de herramientas, estado ===== */\n"
 "QMenuBar {\n"
 "    background-color: #05080a;\n"
 "    color: #c9d1d9;\n"
@@ -142,8 +167,7 @@ class Ui_EditorLumo(object):
 "QMenu::item:selected {\n"
 "    background-color: #12301f;\n"
 "    color: #2ee66b;\n"
-""
-                        "}\n"
+"}\n"
 "QMenu::separator {\n"
 "    height: 1px;\n"
 "    background: #1c2a26;\n"
@@ -153,7 +177,8 @@ class Ui_EditorLumo(object):
 "    background-color: #070b0d;\n"
 "    border: none;\n"
 "    border-bottom: 1px solid #1c2a26;\n"
-"    spacing: 6px;\n"
+"  "
+                        "  spacing: 6px;\n"
 "    padding: 4px;\n"
 "}\n"
 "QToolButton {\n"
@@ -173,6 +198,12 @@ class Ui_EditorLumo(object):
 "    color: #7f9a8d;\n"
 "    border-top: 1px solid #1c2a26;\n"
 "}\n"
+"QLabel#etiquetaPosicion, QLabel#etiquetaEstado {\n"
+"    color: #2ee66b;\n"
+"    padding: 0 8px;\n"
+"}\n"
+"\n"
+"/* ===== Scrollbars ===== */\n"
 "QScrollBar:vertical {\n"
 "    background: #070b0d;\n"
 "    width: 10px;\n"
@@ -185,12 +216,12 @@ class Ui_EditorLumo(object):
 "}\n"
 "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }\n"
 "QScrollBar:horizontal {\n"
-""
-                        "    background: #070b0d;\n"
+"    background: #070b0d;\n"
 "    height: 10px;\n"
 "    margin: 0;\n"
 "}\n"
-"QScrollBar::handle:horizontal {\n"
+"QScr"
+                        "ollBar::handle:horizontal {\n"
 "    background: #1f8f4e;\n"
 "    border-radius: 5px;\n"
 "    min-width: 24px;\n"
@@ -240,7 +271,7 @@ class Ui_EditorLumo(object):
         self.layoutEditor.setSpacing(8)
         self.layoutEditor.setObjectName(u"layoutEditor")
         self.layoutEditor.setContentsMargins(0, 0, 0, 0)
-        self.plainTextEdit = QPlainTextEdit(self.contenedorEditor)
+        self.plainTextEdit = EditorCodigo(self.contenedorEditor)
         self.plainTextEdit.setObjectName(u"plainTextEdit")
         font = QFont()
         font.setFamilies([u"Monospace"])
@@ -252,6 +283,7 @@ class Ui_EditorLumo(object):
         self.layoutEditor.addWidget(self.plainTextEdit)
 
         self.layoutBotonEjecutar = QHBoxLayout()
+        self.layoutBotonEjecutar.setSpacing(8)
         self.layoutBotonEjecutar.setObjectName(u"layoutBotonEjecutar")
         self.espaciadorIzquierdo = QSpacerItem(40, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
 
@@ -270,6 +302,7 @@ class Ui_EditorLumo(object):
         self.splitterPrincipal.addWidget(self.contenedorEditor)
         self.panelesResultados = QTabWidget(self.splitterPrincipal)
         self.panelesResultados.setObjectName(u"panelesResultados")
+        self.panelesResultados.setDocumentMode(False)
         self.pestañasTokens = QWidget()
         self.pestañasTokens.setObjectName(u"pesta\u00f1asTokens")
         self.layoutTokens = QVBoxLayout(self.pestañasTokens)
@@ -367,6 +400,7 @@ class Ui_EditorLumo(object):
         self.barraHerramientas = QToolBar(EditorLumo)
         self.barraHerramientas.setObjectName(u"barraHerramientas")
         self.barraHerramientas.setMovable(False)
+        self.barraHerramientas.setIconSize(QSize(18, 18))
         self.barraHerramientas.setToolButtonStyle(Qt.ToolButtonTextOnly)
         EditorLumo.addToolBar(Qt.ToolBarArea.TopToolBarArea, self.barraHerramientas)
         self.barraEstado = QStatusBar(EditorLumo)
@@ -409,40 +443,61 @@ class Ui_EditorLumo(object):
     def retranslateUi(self, EditorLumo):
         EditorLumo.setWindowTitle(QCoreApplication.translate("EditorLumo", u"Editor Lumo", None))
         self.actionNuevo.setText(QCoreApplication.translate("EditorLumo", u"Nuevo", None))
+#if QT_CONFIG(tooltip)
+        self.actionNuevo.setToolTip(QCoreApplication.translate("EditorLumo", u"Crear un archivo nuevo", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionNuevo.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+N", None))
 #endif // QT_CONFIG(shortcut)
         self.actionAbrir.setText(QCoreApplication.translate("EditorLumo", u"Abrir", None))
+#if QT_CONFIG(tooltip)
+        self.actionAbrir.setToolTip(QCoreApplication.translate("EditorLumo", u"Abrir un archivo", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionAbrir.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+O", None))
 #endif // QT_CONFIG(shortcut)
         self.actionGuardar.setText(QCoreApplication.translate("EditorLumo", u"Guardar", None))
+#if QT_CONFIG(tooltip)
+        self.actionGuardar.setToolTip(QCoreApplication.translate("EditorLumo", u"Guardar el archivo actual", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionGuardar.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+S", None))
 #endif // QT_CONFIG(shortcut)
         self.actionCopiar.setText(QCoreApplication.translate("EditorLumo", u"Copiar", None))
+#if QT_CONFIG(tooltip)
+        self.actionCopiar.setToolTip(QCoreApplication.translate("EditorLumo", u"Copiar la selecci\u00f3n", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionCopiar.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+C", None))
 #endif // QT_CONFIG(shortcut)
         self.actionPegar.setText(QCoreApplication.translate("EditorLumo", u"Pegar", None))
+#if QT_CONFIG(tooltip)
+        self.actionPegar.setToolTip(QCoreApplication.translate("EditorLumo", u"Pegar desde el portapapeles", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionPegar.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+V", None))
 #endif // QT_CONFIG(shortcut)
         self.actionCortar.setText(QCoreApplication.translate("EditorLumo", u"Cortar", None))
+#if QT_CONFIG(tooltip)
+        self.actionCortar.setToolTip(QCoreApplication.translate("EditorLumo", u"Cortar la selecci\u00f3n", None))
+#endif // QT_CONFIG(tooltip)
 #if QT_CONFIG(shortcut)
         self.actionCortar.setShortcut(QCoreApplication.translate("EditorLumo", u"Ctrl+X", None))
 #endif // QT_CONFIG(shortcut)
         self.actionAcercaDe.setText(QCoreApplication.translate("EditorLumo", u"Acerca de", None))
-        self.plainTextEdit.setPlaceholderText(QCoreApplication.translate("EditorLumo", u"// Escribe tu codigo Lumo aqui...", None))
 #if QT_CONFIG(tooltip)
-        self.botonCompilar.setToolTip(QCoreApplication.translate("EditorLumo", u"Compilar y ejecutar el codigo (F5)", None))
+        self.actionAcercaDe.setToolTip(QCoreApplication.translate("EditorLumo", u"Informaci\u00f3n sobre Editor Lumo", None))
+#endif // QT_CONFIG(tooltip)
+        self.plainTextEdit.setPlaceholderText(QCoreApplication.translate("EditorLumo", u"// Escribe tu c\u00f3digo Lumo aqu\u00ed...", None))
+#if QT_CONFIG(tooltip)
+        self.botonCompilar.setToolTip(QCoreApplication.translate("EditorLumo", u"Compilar y ejecutar el c\u00f3digo (F5)", None))
 #endif // QT_CONFIG(tooltip)
         self.botonCompilar.setText(QCoreApplication.translate("EditorLumo", u"\u25b6  Compilar / Ejecutar", None))
 #if QT_CONFIG(shortcut)
         self.botonCompilar.setShortcut(QCoreApplication.translate("EditorLumo", u"F5", None))
 #endif // QT_CONFIG(shortcut)
         ___qtablewidgetitem = self.tablaTokens.horizontalHeaderItem(0)
-        ___qtablewidgetitem.setText(QCoreApplication.translate("EditorLumo", u"Linea", None))
+        ___qtablewidgetitem.setText(QCoreApplication.translate("EditorLumo", u"L\u00ednea", None))
         ___qtablewidgetitem1 = self.tablaTokens.horizontalHeaderItem(1)
         ___qtablewidgetitem1.setText(QCoreApplication.translate("EditorLumo", u"Tipo", None))
         ___qtablewidgetitem2 = self.tablaTokens.horizontalHeaderItem(2)
@@ -452,13 +507,13 @@ class Ui_EditorLumo(object):
         ___qtreewidgetitem.setText(0, QCoreApplication.translate("EditorLumo", u"Nodo", None))
         self.panelesResultados.setTabText(self.panelesResultados.indexOf(self.pestañasAST), QCoreApplication.translate("EditorLumo", u"AST", None))
         ___qtablewidgetitem3 = self.tablaErrores.horizontalHeaderItem(0)
-        ___qtablewidgetitem3.setText(QCoreApplication.translate("EditorLumo", u"Linea", None))
+        ___qtablewidgetitem3.setText(QCoreApplication.translate("EditorLumo", u"L\u00ednea", None))
         ___qtablewidgetitem4 = self.tablaErrores.horizontalHeaderItem(1)
         ___qtablewidgetitem4.setText(QCoreApplication.translate("EditorLumo", u"Columna", None))
         ___qtablewidgetitem5 = self.tablaErrores.horizontalHeaderItem(2)
-        ___qtablewidgetitem5.setText(QCoreApplication.translate("EditorLumo", u"Descripcion", None))
+        ___qtablewidgetitem5.setText(QCoreApplication.translate("EditorLumo", u"Descripci\u00f3n", None))
         self.panelesResultados.setTabText(self.panelesResultados.indexOf(self.pestañasErrores), QCoreApplication.translate("EditorLumo", u"Errores", None))
-        self.textoSalida.setPlaceholderText(QCoreApplication.translate("EditorLumo", u"La salida del programa aparecera aqui...", None))
+        self.textoSalida.setPlaceholderText(QCoreApplication.translate("EditorLumo", u"La salida del programa aparecer\u00e1 aqu\u00ed...", None))
         self.panelesResultados.setTabText(self.panelesResultados.indexOf(self.pestañasSalida), QCoreApplication.translate("EditorLumo", u"Salida", None))
         self.menuArchivo.setTitle(QCoreApplication.translate("EditorLumo", u"&Archivo", None))
         self.menuEditar.setTitle(QCoreApplication.translate("EditorLumo", u"&Editar", None))

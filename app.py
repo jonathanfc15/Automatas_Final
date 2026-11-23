@@ -11,6 +11,7 @@ from PySide6.QtWidgets import (
 )
 
 from principal import Ui_EditorLumo
+import recursos_rc
 from compiler.lexer import Lexer
 from compiler.tokens import LexerError
 from compiler.parser import Parser, ParserError
@@ -35,6 +36,16 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.actionCortar.triggered.connect(self.plainTextEdit.cut)
         self.actionAcercaDe.triggered.connect(self.acerca_de)
         self.botonCompilar.clicked.connect(self.compilar_ejecutar)
+        self.plainTextEdit.cursorPositionChanged.connect(self.actualizar_posicion_cursor)
+        self.actualizar_posicion_cursor()
+
+    def actualizar_posicion_cursor(self):
+        cursor = self.plainTextEdit.textCursor()
+        linea = cursor.blockNumber() + 1
+        columna = cursor.columnNumber() + 1
+        self.barraEstado.showMessage(
+            f"Lumo  |  Línea {linea}  Columna {columna}"
+        )
         
     def mostrar_ast(self, valor):
         self.arbolAST.clear()
