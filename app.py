@@ -52,6 +52,13 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.actionCortar.triggered.connect(self.plainTextEdit.cut)
         self.actionAcercaDe.triggered.connect(self.acerca_de)
         self.botonCompilar.clicked.connect(self.compilar_ejecutar)
+
+        # Atajos de teclado
+        self.actionNuevo.setShortcut(QKeySequence("Ctrl+N"))
+        self.actionAbrir.setShortcut(QKeySequence("Ctrl+O"))
+        self.actionGuardar.setShortcut(QKeySequence("Ctrl+S"))
+        self.botonCompilar.setShortcut(QKeySequence("F5"))
+
         self.plainTextEdit.cursorPositionChanged.connect(self.actualizar_posicion_cursor)
         self.acceso_busqueda = self.addAction("")
         self.acceso_busqueda.setShortcut(QKeySequence("Ctrl+F"))
@@ -172,6 +179,7 @@ class Window(QMainWindow, Ui_EditorLumo):
         root = QTreeWidgetItem([valor.__class__.__name__])
         self.arbolAST.addTopLevelItem(root)
         self.agregar_nodo_ast(root, valor)
+        self.arbolAST.expandAll()
 
     def agregar_nodo_ast(self, parent, valor):
         if is_dataclass(valor):
