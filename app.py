@@ -52,6 +52,13 @@ class Window(QMainWindow, Ui_EditorLumo):
         self.actionCortar.triggered.connect(self.plainTextEdit.cut)
         self.actionAcercaDe.triggered.connect(self.acerca_de)
         self.botonCompilar.clicked.connect(self.compilar_ejecutar)
+
+        # Atajos de teclado
+        self.actionNuevo.setShortcut(QKeySequence("Ctrl+N"))
+        self.actionAbrir.setShortcut(QKeySequence("Ctrl+O"))
+        self.actionGuardar.setShortcut(QKeySequence("Ctrl+S"))
+        self.botonCompilar.setShortcut(QKeySequence("F5"))
+
         self.plainTextEdit.cursorPositionChanged.connect(self.actualizar_posicion_cursor)
         self.acceso_busqueda = self.addAction("")
         self.acceso_busqueda.setShortcut(QKeySequence("Ctrl+F"))
@@ -172,6 +179,7 @@ class Window(QMainWindow, Ui_EditorLumo):
         root = QTreeWidgetItem([valor.__class__.__name__])
         self.arbolAST.addTopLevelItem(root)
         self.agregar_nodo_ast(root, valor)
+        self.arbolAST.expandAll()
 
     def agregar_nodo_ast(self, parent, valor):
         if is_dataclass(valor):
@@ -279,7 +287,20 @@ class Window(QMainWindow, Ui_EditorLumo):
             self.barraEstado.showMessage(f"Archivo guardado: {archivo}")
 
     def acerca_de(self):
-        QMessageBox.about(self, "Acerca de", "Editor Lumo")
+        QMessageBox.about(
+            self,
+            "Acerca de Lumo",
+            "<h3>Lumo — Editor y Compilador v1.0</h3>"
+            "<p>Entorno de desarrollo con análisis léxico, sintáctico, semántico e intérprete.</p>"
+            "<p><b>Palabras reservadas:</b><br>"
+            "• Tipos: <code>ent</code>, <code>dec</code>, <code>txt</code>, <code>bool</code><br>"
+            "• Control: <code>simon</code>, <code>nosimon</code>, <code>mientras</code><br>"
+            "• Funciones y salida: <code>funchion</code>, <code>retorno</code>, <code>muestrame</code><br>"
+            "• Lógicos: <code>verdad</code>, <code>falso</code>, <code>Y</code>, <code>O</code>, <code>NONES</code></p>"
+            "<p><b>Atajos de teclado:</b><br>"
+            "Ctrl+N (Nuevo) | Ctrl+O (Abrir) | Ctrl+S (Guardar)<br>"
+            "Ctrl+F (Buscar) | F5 (Compilar / Ejecutar)</p>"
+        )
 
 
 app = QApplication(sys.argv)

@@ -1,0 +1,5 @@
+// Prueba de errores sintacticos y recuperacion con ';'
+ent edad = 20
+muestrame(edad);
+ent sinValor = ;
+simon edad > 18 muestrame("Falta llave");
